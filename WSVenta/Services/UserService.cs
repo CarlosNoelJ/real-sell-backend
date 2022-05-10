@@ -45,8 +45,8 @@ namespace WSVenta.Services
         private string GetToken(Usuario usuario)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-
             var llave = Encoding.ASCII.GetBytes(_appSettings.Secreto);
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(
