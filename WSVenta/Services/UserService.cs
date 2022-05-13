@@ -31,7 +31,7 @@ namespace WSVenta.Services
             {
                 string sPasswod = Encrypt.GetSHA256(model.Password);
 
-                var usuario = db.Usuario.Where( d => d.Email == model.Email && d.Password == sPasswod).FirstOrDefault();
+                var usuario = db.Usuario.Where(d => d.Email == model.Email && d.Password == sPasswod).FirstOrDefault();
 
                 if (usuario == null) return null;
 

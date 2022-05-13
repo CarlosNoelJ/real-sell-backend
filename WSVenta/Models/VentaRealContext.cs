@@ -53,9 +53,7 @@ namespace WSVenta.Models
             {
                 entity.ToTable("concepto");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("id")
-                    .ValueGeneratedNever();
+                entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Cantidad).HasColumnName("cantidad");
 
@@ -88,9 +86,7 @@ namespace WSVenta.Models
             {
                 entity.ToTable("producto");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("id")
-                    .ValueGeneratedNever();
+                entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.Costo)
                     .HasColumnName("costo")
