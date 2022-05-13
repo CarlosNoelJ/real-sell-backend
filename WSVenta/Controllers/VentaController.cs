@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Linq;
 using WSVenta.Models;
 using WSVenta.Models.Request;
 using WSVenta.Models.Response;
@@ -22,25 +23,38 @@ namespace WSVenta.Controllers
             {
                 using (VentaRealContext db = new VentaRealContext())
                 {
-                    var venta = new Venta();
-                    venta.Total = model.Total;
-                    venta.Fecha = DateTime.Now;
-                    venta.IdCliente = model.IdCliente;
-                    db.Venta.Add(venta);
-                    db.SaveChanges();
 
-                    foreach (var modelConcepto in model.Conceptos){
-                        Concepto concepto = new Models.Concepto();
-                        concepto.Cantidad = modelConcepto.Cantidad;
-                        concepto.IdProducto = modelConcepto.IdProducto;
-                        concepto.PrecioUnitario = modelConcepto.PrecioUnitario;
-                        concepto.Importe = modelConcepto.Importe;
-                        concepto.IdVenta = venta.Id;
-                        db.Concepto.Add(concepto);
-                        db.SaveChanges();
+                    using (var transaction = db.Database.BeginTransaction())
+                    {
+                        try
+                        {
+                            var venta = new Venta();
+                            venta.Total = model.Conceptos.Sum(d => d.Cantidad * d.PrecioUnitario);
+                            venta.Fecha = DateTime.Now;
+                            venta.IdCliente = model.IdCliente;
+                            db.Venta.Add(venta);
+                            db.SaveChanges();
+
+                            foreach (var modelConcepto in model.Conceptos)
+                            {
+                                Concepto concepto = new Models.Concepto();
+                                concepto.Cantidad = modelConcepto.Cantidad;
+                                concepto.IdProducto = modelConcepto.IdProducto;
+                                concepto.PrecioUnitario = modelConcepto.PrecioUnitario;
+                                concepto.Importe = modelConcepto.Importe;
+                                concepto.IdVenta = venta.Id;
+                                db.Concepto.Add(concepto);
+                                db.SaveChanges();
+                            }
+
+                            transaction.Commit();
+                            respuesta.Exito = 1;
+                        }
+                        catch (Exception)
+                        {
+                            transaction.Rollback();
+                        }
                     }
-
-                    respuesta.Exito = 1;
                 }
             }
             catch (Exception ex)
